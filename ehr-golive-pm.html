@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EHR Go-Live Project Management | Karar Syed</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f5f5f3;--bg3:#efefec;--text:#1a1a1a;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);--sbg:#eaf3de;--stxt:#3b6d11;--dbg:#fcebeb;--dtxt:#791f1f;--wbg:#faeeda;--wtxt:#854f0b;--ibg:#e6f1fb;--itxt:#185fa5;--gbg:#f1efe8;--gtxt:#5f5e5a;--accent:#185fa5;--r:8px;--rl:12px}
+@media(prefers-color-scheme:dark){:root{--bg:#1e1e1c;--bg2:#282825;--bg3:#323230;--text:#e8e6de;--text2:#a8a69e;--text3:#6e6c66;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);--sbg:#1a2e0f;--stxt:#97c459;--dbg:#2e1212;--dtxt:#f09595;--wbg:#2e1f08;--wtxt:#fac775;--ibg:#0c1e33;--itxt:#85b7eb;--gbg:#2c2c2a;--gtxt:#b4b2a9;--accent:#85b7eb}}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding:2rem 1rem;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;background:var(--bg);border-radius:var(--rl);border:0.5px solid var(--border);overflow:hidden}
+.hdr{padding:1.75rem 2rem 1.25rem;border-bottom:0.5px solid var(--border)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--ibg);color:var(--itxt);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;border:0.5px solid var(--border);flex-shrink:0}
+.hdr h1{font-size:20px;font-weight:600;color:var(--text);margin-bottom:6px}
+.hdr p{font-size:13px;color:var(--text2)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2)}
+.tnav{display:flex;border-bottom:0.5px solid var(--border);padding:0 1.5rem;overflow-x:auto;background:var(--bg);-webkit-overflow-scrolling:touch}
+.tbtn{font-size:13px;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;padding:12px 14px;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.tbtn.active{color:var(--text);font-weight:500;border-bottom-color:var(--text)}
+.tbtn:hover:not(.active){color:var(--text)}
+.tp{display:none;padding:1.5rem 2rem 2rem}
+.tp.active{display:block}
+.sl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.mr{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
+.mc{background:var(--bg2);border-radius:var(--r);padding:14px 16px}
+.mc .lb{font-size:12px;color:var(--text2);margin-bottom:4px}
+.mc .vl{font-size:24px;font-weight:600;color:var(--text)}
+.mc .dl{font-size:12px;margin-top:3px}
+.up{color:var(--stxt)}.dn{color:var(--dtxt)}.ne{color:var(--text2)}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card h3{font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px}
+.bx{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.bg{background:var(--sbg);color:var(--stxt)}.br{background:var(--dbg);color:var(--dtxt)}.ba{background:var(--wbg);color:var(--wtxt)}.bb{background:var(--ibg);color:var(--itxt)}.bq{background:var(--gbg);color:var(--gtxt)}
+.tbl{width:100%;font-size:13px;border-collapse:collapse}
+.tbl th{font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--border)}
+.tbl td{padding:10px;vertical-align:top;border-bottom:0.5px solid var(--border);color:var(--text);line-height:1.5;font-size:13px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+.prog-row{margin-bottom:10px}
+.prog-label{display:flex;justify-content:space-between;font-size:13px;color:var(--text);margin-bottom:5px}
+.prog-track{background:var(--bg2);border-radius:20px;height:8px;overflow:hidden}
+.prog-fill{height:100%;border-radius:20px}
+.ws-row{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.ws-row:last-child{border-bottom:none}
+.ws-icon{width:34px;height:34px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:var(--text2);background:var(--bg2)}
+.ws-name{font-size:13px;font-weight:500;color:var(--text)}
+.ws-sub{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.6}
+.leg{display:flex;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text2);flex-wrap:wrap}
+.leg span{display:flex;align-items:center;gap:5px}
+.ls{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.rd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.rd-card{background:var(--bg2);border-radius:var(--r);padding:14px;text-align:center}
+.rd-val{font-size:30px;font-weight:600;margin-bottom:2px}
+.rd-lbl{font-size:12px;color:var(--text2)}
+.rd-sub{font-size:11px;margin-top:4px}
+.warn-box{background:var(--wbg);border-radius:var(--r);padding:12px 16px;margin-top:14px;font-size:13px;color:var(--wtxt);font-weight:500;line-height:1.6}
+.footer{padding:1rem 2rem;border-top:0.5px solid var(--border);font-size:12px;color:var(--text3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;background:var(--bg2)}
+.footer a{color:var(--accent);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="av">KS</div>
+      <div style="font-size:13px;color:var(--text2)"><strong style="color:var(--text)">Karar Syed</strong> · Project Management Portfolio</div>
+    </div>
+    <h1>EHR go-live project — Riverside Medical Center</h1>
+    <p>20-week EHR activation: workstream tracker, training completion dashboard, issue log, go-live readiness scoring, and post-activation metrics.</p>
+    <div class="tags">
+      <span class="tag">EHR implementation</span><span class="tag">Go-live management</span><span class="tag">Training coordination</span><span class="tag">Issue tracking</span><span class="tag">Readiness scoring</span><span class="tag">Change management</span><span class="tag">Healthcare IT</span><span class="tag">Stakeholder mgmt</span>
+    </div>
+  </div>
+
+  <nav class="tnav">
+    <button class="tbtn active" onclick="showTab('overview',this)">Overview</button>
+    <button class="tbtn" onclick="showTab('workstreams',this)">Workstreams</button>
+    <button class="tbtn" onclick="showTab('training',this)">Training</button>
+    <button class="tbtn" onclick="showTab('issues',this)">Issue log</button>
+    <button class="tbtn" onclick="showTab('readiness',this)">Go-live readiness</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="tp active">
+    <div class="sl">Project snapshot — week 18 of 20</div>
+    <div class="mr">
+      <div class="mc"><div class="lb">Overall progress</div><div class="vl">87%</div><div class="dl up">On track</div></div>
+      <div class="mc"><div class="lb">Go-live date</div><div class="vl">Wk 20</div><div class="dl up">On schedule</div></div>
+      <div class="mc"><div class="lb">Open issues</div><div class="vl">7</div><div class="dl dn">3 critical</div></div>
+      <div class="mc"><div class="lb">Training done</div><div class="vl">91%</div><div class="dl up">346 / 380 users</div></div>
+    </div>
+    <div class="card">
+      <h3>Workstream progress — week 18</h3>
+      <div class="prog-row"><div class="prog-label"><span>Clinical workflows</span><span style="font-weight:500;color:var(--text2)">94%</span></div><div class="prog-track"><div class="prog-fill" style="width:94%;background:#1D9E75"></div></div></div>
+      <div class="prog-row"><div class="prog-label"><span>Revenue cycle & billing</span><span style="font-weight:500;color:var(--text2)">88%</span></div><div class="prog-track"><div class="prog-fill" style="width:88%;background:#378ADD"></div></div></div>
+      <div class="prog-row"><div class="prog-label"><span>IT infrastructure & security</span><span style="font-weight:500;color:var(--text2)">92%</span></div><div class="prog-track"><div class="prog-fill" style="width:92%;background:#7F77DD"></div></div></div>
+      <div class="prog-row"><div class="prog-label"><span>End-user training</span><span style="font-weight:500;color:var(--text2)">91%</span></div><div class="prog-track"><div class="prog-fill" style="width:91%;background:#EF9F27"></div></div></div>
+      <div class="prog-row"><div class="prog-label"><span>Data migration & validation</span><span style="font-weight:500;color:var(--text2)">79%</span></div><div class="prog-track"><div class="prog-fill" style="width:79%;background:#E24B4A"></div></div></div>
+      <div class="prog-row"><div class="prog-label"><span>Command center & go-live prep</span><span style="font-weight:500;color:var(--text2)">65%</span></div><div class="prog-track"><div class="prog-fill" style="width:65%;background:#888780"></div></div></div>
+    </div>
+    <div class="card">
+      <h3>Cumulative milestones completed vs target</h3>
+      <div class="leg"><span><span class="ls" style="background:#1D9E75"></span>Completed</span><span><span class="ls" style="background:#E24B4A;border:1px dashed #A32D2D"></span>Target pace</span></div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="milestoneChart" role="img" aria-label="Line chart of cumulative milestones completed vs target across 18 weeks">Milestones tracking above target, 87 completed by week 18.</canvas></div>
+    </div>
+  </div>
+
+  <!-- WORKSTREAMS -->
+  <div id="tab-workstreams" class="tp">
+    <div class="sl">6 workstreams — status and leads</div>
+    <div class="mr">
+      <div class="mc"><div class="lb">On track</div><div class="vl">4</div><div class="dl up">of 6 streams</div></div>
+      <div class="mc"><div class="lb">At risk</div><div class="vl">1</div><div class="dl dn">Data migration</div></div>
+      <div class="mc"><div class="lb">In progress</div><div class="vl">1</div><div class="dl ne">Command center</div></div>
+      <div class="mc"><div class="lb">Total tasks</div><div class="vl">214</div><div class="dl ne">Across all streams</div></div>
+    </div>
+    <div class="card">
+      <h3>Workstream breakdown</h3>
+      <div class="ws-row"><div class="ws-icon" style="background:var(--sbg);color:var(--stxt)">CL</div><div style="flex:1"><div class="ws-name">Clinical workflows</div><div class="ws-sub">Physician and nursing build — order sets, documentation templates, medication administration, and clinical decision support configuration. 47 super-users trained and designated as floor support at go-live.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx bg">On track</span><div style="font-size:11px;color:var(--text2);margin-top:4px">94% · 52 tasks</div></div></div>
+      <div class="ws-row"><div class="ws-icon" style="background:var(--ibg);color:var(--itxt)">RC</div><div style="flex:1"><div class="ws-name">Revenue cycle & billing</div><div class="ws-sub">Charge capture, insurance verification, claim scrubbing, and remittance workflows configured. Integration with clearinghouse vendor validated. 2 open billing rule issues under active review.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx bg">On track</span><div style="font-size:11px;color:var(--text2);margin-top:4px">88% · 38 tasks</div></div></div>
+      <div class="ws-row"><div class="ws-icon" style="background:#EEEDFE;color:#534AB7">IT</div><div style="flex:1"><div class="ws-name">IT infrastructure & security</div><div class="ws-sub">Network segmentation, application server environment, workstation imaging, badge printing, and MFA enrollment for 380 staff. HIPAA audit logging validated. Downtime procedures documented.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx bg">On track</span><div style="font-size:11px;color:var(--text2);margin-top:4px">92% · 41 tasks</div></div></div>
+      <div class="ws-row"><div class="ws-icon" style="background:var(--wbg);color:var(--wtxt)">TR</div><div style="flex:1"><div class="ws-name">End-user training</div><div class="ws-sub">Role-based training across 8 tracks: RN, MD, MA, front desk, billing, pharmacy, lab, and admin. 346 of 380 users completed. 34 outstanding — makeup sessions scheduled for week 19.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx bg">On track</span><div style="font-size:11px;color:var(--text2);margin-top:4px">91% · 44 tasks</div></div></div>
+      <div class="ws-row"><div class="ws-icon" style="background:var(--dbg);color:var(--dtxt)">DM</div><div style="flex:1"><div class="ws-name">Data migration & validation</div><div class="ws-sub">Patient demographics, problem lists, medication history, and allergy records migrated from legacy system. 3rd mock cutover in progress. 21% of records pending final validation — flagged as critical path risk.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx ba">At risk</span><div style="font-size:11px;color:var(--text2);margin-top:4px">79% · 22 tasks</div></div></div>
+      <div class="ws-row"><div class="ws-icon">CC</div><div style="flex:1"><div class="ws-name">Command center & go-live prep</div><div class="ws-sub">Go-live command center staffing plan finalized (24/7 coverage for first 72 hrs). Issue escalation tiers defined. Elbow support schedule for all floors. Downtime binders printed and distributed to units.</div></div><div style="flex-shrink:0;text-align:right"><span class="bx bb">In progress</span><div style="font-size:11px;color:var(--text2);margin-top:4px">65% · 17 tasks</div></div></div>
+    </div>
+  </div>
+
+  <!-- TRAINING -->
+  <div id="tab-training" class="tp">
+    <div class="sl">Training completion — 380 end users across 8 role tracks</div>
+    <div class="mr">
+      <div class="mc"><div class="lb">Completed</div><div class="vl">346</div><div class="dl up">91% of staff</div></div>
+      <div class="mc"><div class="lb">Outstanding</div><div class="vl">34</div><div class="dl dn">Makeup wk 19</div></div>
+      <div class="mc"><div class="lb">Super-users</div><div class="vl">47</div><div class="dl up">Floor-ready</div></div>
+      <div class="mc"><div class="lb">Avg test score</div><div class="vl">88%</div><div class="dl up">Pass = 80%</div></div>
+    </div>
+    <div class="card">
+      <h3>Completion by role</h3>
+      <div class="leg"><span><span class="ls" style="background:#1D9E75"></span>Completed</span><span><span class="ls" style="background:#E0DED6"></span>Outstanding</span></div>
+      <div style="position:relative;width:100%;height:300px"><canvas id="trainingChart" role="img" aria-label="Horizontal bar chart of training completion by role">RN 96%, Physician 89%, MA 94%, Front desk 100%, Billing 88%, Pharmacy 91%, Lab 85%, Admin 100%.</canvas></div>
+    </div>
+    <div class="card">
+      <h3>Weekly training volume</h3>
+      <div class="leg"><span><span class="ls" style="background:#378ADD"></span>Users trained per week</span></div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="weeklyTrainingChart" role="img" aria-label="Bar chart of users trained per week across 18 weeks">Training volume peaks in weeks 7-9.</canvas></div>
+    </div>
+  </div>
+
+  <!-- ISSUES -->
+  <div id="tab-issues" class="tp">
+    <div class="sl">Issue log — active and resolved</div>
+    <div class="mr">
+      <div class="mc"><div class="lb">Total logged</div><div class="vl">31</div><div class="dl ne">Since project start</div></div>
+      <div class="mc"><div class="lb">Open</div><div class="vl">7</div><div class="dl dn">3 critical</div></div>
+      <div class="mc"><div class="lb">Resolved</div><div class="vl">24</div><div class="dl up">77% closure rate</div></div>
+      <div class="mc"><div class="lb">Avg resolution</div><div class="vl">2.4d</div><div class="dl up">SLA = 3 days</div></div>
+    </div>
+    <div class="card">
+      <h3>Open issues</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:70px">ID</th><th>Issue</th><th style="width:90px">Workstream</th><th style="width:75px">Priority</th><th style="width:75px">Status</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-024</td><td>21% of patient records failing validation — allergies field mismatch between legacy and new system</td><td>Data migration</td><td><span class="bx br">Critical</span></td><td><span class="bx ba">In review</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-027</td><td>Charge capture not triggering for same-day surgery encounters — revenue impact</td><td>Rev cycle</td><td><span class="bx br">Critical</span></td><td><span class="bx ba">In review</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-029</td><td>Downtime login credentials incomplete — 34 staff not yet provisioned</td><td>IT</td><td><span class="bx br">Critical</span></td><td><span class="bx bb">Assigned</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-019</td><td>Lab result routing delay — results not appearing in provider inbox within 15-min SLA</td><td>Clinical</td><td><span class="bx ba">High</span></td><td><span class="bx bb">Assigned</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-022</td><td>34 end users have not completed required training — makeup sessions needed before go-live</td><td>Training</td><td><span class="bx ba">High</span></td><td><span class="bx bg">Scheduled</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-026</td><td>Insurance eligibility API timeout errors during peak load testing</td><td>Rev cycle</td><td><span class="bx ba">High</span></td><td><span class="bx ba">In review</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:12px">ISS-030</td><td>Command center floor coverage gaps on nights 2 and 3 of go-live weekend</td><td>Command ctr</td><td><span class="bx bq">Medium</span></td><td><span class="bx bb">Assigned</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Issues opened vs resolved by week</h3>
+      <div class="leg"><span><span class="ls" style="background:#1D9E75"></span>Resolved</span><span><span class="ls" style="background:#E24B4A"></span>Opened</span></div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="issueChart" role="img" aria-label="Bar chart comparing issues opened and resolved per week">Resolution rate exceeds open rate after week 4.</canvas></div>
+    </div>
+  </div>
+
+  <!-- READINESS -->
+  <div id="tab-readiness" class="tp">
+    <div class="sl">Go-live readiness scorecard — week 18 assessment</div>
+    <div class="rd-grid">
+      <div class="rd-card"><div class="rd-val up">94%</div><div class="rd-lbl">Clinical readiness</div><div class="rd-sub up">Super-users trained & deployed</div></div>
+      <div class="rd-card"><div class="rd-val up">91%</div><div class="rd-lbl">Training completion</div><div class="rd-sub up">346 / 380 users done</div></div>
+      <div class="rd-card"><div class="rd-val dn">79%</div><div class="rd-lbl">Data migration</div><div class="rd-sub dn">Critical path — at risk</div></div>
+      <div class="rd-card"><div class="rd-val up">92%</div><div class="rd-lbl">IT infrastructure</div><div class="rd-sub up">MFA + downtime ready</div></div>
+    </div>
+    <div class="card">
+      <h3>Go-live gate checklist</h3>
+      <table class="tbl">
+        <thead><tr><th>Criteria</th><th style="width:120px">Target</th><th style="width:110px">Current</th><th style="width:80px">Gate</th></tr></thead>
+        <tbody>
+          <tr><td>End-user training completion</td><td>95%+ before go-live</td><td>91% (wk 18)</td><td><span class="bx ba">Pending</span></td></tr>
+          <tr><td>Data migration validation pass rate</td><td>100% of records</td><td>79% validated</td><td><span class="bx br">Blocked</span></td></tr>
+          <tr><td>Critical issues resolved</td><td>0 open critical</td><td>3 open</td><td><span class="bx br">Blocked</span></td></tr>
+          <tr><td>Downtime procedures distributed</td><td>All units</td><td>Complete</td><td><span class="bx bg">Passed</span></td></tr>
+          <tr><td>Command center staffed (72 hrs)</td><td>24/7 coverage</td><td>In progress</td><td><span class="bx ba">Pending</span></td></tr>
+          <tr><td>Super-users deployed per floor</td><td>2+ per unit</td><td>47 total, deployed</td><td><span class="bx bg">Passed</span></td></tr>
+          <tr><td>Mock cutover completed</td><td>3 successful runs</td><td>2 done, 3rd live</td><td><span class="bx ba">Pending</span></td></tr>
+          <tr><td>IT security & MFA enrollment</td><td>100% of users</td><td>98% enrolled</td><td><span class="bx bg">Passed</span></td></tr>
+          <tr><td>Stakeholder sign-off obtained</td><td>All dept leads</td><td>4 of 6 signed</td><td><span class="bx ba">Pending</span></td></tr>
+          <tr><td>Vendor support contract active</td><td>Go-live + 90 days</td><td>Confirmed</td><td><span class="bx bg">Passed</span></td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box">Overall readiness: 87% — 2 gates blocked (data migration + critical issues). Escalated to steering committee. Conditional approval pending resolution by end of week 19.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Karar Syed · Project Management Portfolio · Austin, TX</span>
+    <a href="https://linkedin.com/in/karar-syed-42153b318" target="_blank">LinkedIn ↗</a>
+  </div>
+</div>
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='overview')setTimeout(buildMilestone,50);
+  if(id==='training')setTimeout(buildTraining,50);
+  if(id==='issues')setTimeout(buildIssues,50);
+}
+let mB=false,tB=false,iB=false;
+function buildMilestone(){
+  if(mB)return;mB=true;
+  const wks=['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18'];
+  const target=wks.map((_,i)=>Math.round((i+1)*5));
+  const actual=[5,9,14,19,24,28,33,38,43,47,52,57,62,67,72,77,82,87];
+  new Chart(document.getElementById('milestoneChart'),{type:'line',data:{labels:wks,datasets:[{label:'Completed',data:actual,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.07)',borderWidth:2,pointRadius:2,fill:true,tension:0.3},{label:'Target',data:target,borderColor:'#E24B4A',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{font:{size:11},callback:v=>Math.round(v)+'%'},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+}
+function buildTraining(){
+  if(tB)return;tB=true;
+  const roles=['RN','Physician','Med assistant','Front desk','Billing','Pharmacy','Lab','Admin'];
+  const total=[82,36,45,28,24,18,30,17];
+  const done=[79,32,42,28,21,16,26,17];
+  new Chart(document.getElementById('trainingChart'),{type:'bar',data:{labels:roles,datasets:[{label:'Completed',data:done,backgroundColor:'rgba(29,158,117,0.8)',borderWidth:0},{label:'Outstanding',data:total.map((t,i)=>t-done[i]),backgroundColor:'rgba(224,222,214,0.8)',borderWidth:0}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{font:{size:11},callback:v=>Math.round(v)},grid:{color:'rgba(128,128,128,0.1)'}},y:{stacked:true,ticks:{font:{size:11}},grid:{display:false}}}}});
+  new Chart(document.getElementById('weeklyTrainingChart'),{type:'bar',data:{labels:['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18'],datasets:[{label:'Users trained',data:[0,0,8,12,18,28,35,42,44,38,31,28,22,18,12,8,4,2],backgroundColor:'rgba(55,138,221,0.75)',borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:11},callback:v=>Math.round(v)},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+}
+function buildIssues(){
+  if(iB)return;iB=true;
+  new Chart(document.getElementById('issueChart'),{type:'bar',data:{labels:['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18'],datasets:[{label:'Opened',data:[3,2,4,3,2,1,3,2,2,1,2,1,2,1,1,0,1,0],backgroundColor:'rgba(226,75,74,0.7)',borderWidth:0},{label:'Resolved',data:[1,1,2,3,3,2,3,2,2,2,2,1,2,1,1,1,1,0],backgroundColor:'rgba(29,158,117,0.7)',borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:11},callback:v=>Math.round(v)},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+}
+setTimeout(buildMilestone,100);
+</script>
+</body>
+</html>
